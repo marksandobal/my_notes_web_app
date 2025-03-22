@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import MuiAppBar from '@mui/material/AppBar';
 import {
@@ -22,22 +23,32 @@ interface CustomAppBarProps {
   handleDrawerOpen: () => void;
 }
 
+// Estilo personalizado para AppBar, asegurándonos de que 'drawerWidth' no se pase al DOM
 const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open', // No pasar 'open' al DOM
+  shouldForwardProp: (prop) => prop !== 'open' && prop !== 'drawerWidth', // No pasar 'drawerWidth' al DOM
 })<AppBarProps>(({ theme, open, drawerWidth }) => ({
   zIndex: theme.zIndex.drawer + 1,
   transition: theme.transitions.create(['width', 'margin'], {
     easing: theme.transitions.easing.sharp,
     duration: open ? theme.transitions.duration.enteringScreen : theme.transitions.duration.leavingScreen,
   }),
-  // Aquí modificamos el estilo basado en el valor de 'open'
   marginLeft: open ? drawerWidth : 0,
   width: open ? `calc(100% - ${drawerWidth}px)` : '100%',
 }));
 
-const CustomAppBar = ({ title, drawerWidth, open, handleDrawerOpen } : CustomAppBarProps)=> {
+const CustomAppBar = ({ title, drawerWidth, open, handleDrawerOpen }: CustomAppBarProps) => {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    // Evita el renderizado mientras no se haya hidratado completamente
+    return null;
+  }
   return (
-    <AppBar position="fixed" open={open} drawerWidth={drawerWidth}>
+    <AppBar position="fixed" open={open} drawerWidth={drawerWidth}> {/* drawerWidth ya no se pasa al DOM */}
       <Toolbar>
         <IconButton
           color="inherit"
@@ -61,4 +72,4 @@ const CustomAppBar = ({ title, drawerWidth, open, handleDrawerOpen } : CustomApp
   );
 };
 
-export default  CustomAppBar;
+export default CustomAppBar;

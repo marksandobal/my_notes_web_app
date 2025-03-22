@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import MiniDrawer from "@/components/ui/sidebar/sidebar";
-import {
-  Box,
-} from '@mui/material';
+import SessionAuthProvider from "@/context/SessionAuthProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,15 +25,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html suppressHydrationWarning lang="en">
       <head>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <MiniDrawer></MiniDrawer>
-        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-          {children}
-        </Box>
+        <SessionAuthProvider>
+          <MiniDrawer>
+            {children}
+          </MiniDrawer>
+        </SessionAuthProvider>
       </body>
     </html>
   );

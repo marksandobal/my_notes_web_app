@@ -2,29 +2,28 @@
 
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-//import { login } from '@/services/authenticationService';
+import { login } from '@/services/authenticationService';
 
 const handler = NextAuth({
   providers: [
     CredentialsProvider({
       name: 'Credentials',  // Le damos un nombre al proveedor
       credentials: {
-        email: { label: 'Usuario', type: 'email', placeholder: 'text@mail.com' },
+        email: { label: 'Usuario', type: 'email', placeholder: 'user@mail.com' },
         password: { label: 'Contraseña', type: 'password' }
       },
       async authorize(credentials, req) {
-        // Aquí validas las credenciales del usuario (por ejemplo, haciendo una consulta a una base de datos)
-        const { email, password } = credentials;
-
         try {
-/*           const response = await login(email, password);
-          const res = await response.json();
-          const { data } = res;
-          const token = response.headers.get('Authorization');
-          const userData = { id: data.id, fullName: `${data?.name} ${data?.last_name}`, email: data.email, token };
+          const user = await login(credentials);
 
-          return userData; */
-          return { id: 1, fullName: 'User Example', email: email, token: ''};
+          const userData = {
+            id: user.id,
+            fullName: `${user?.name} ${user?.lastName}`,
+            email: user.email,
+            token: user.token
+          };
+
+          return userData;
         } catch (error) {
           console.error('Error de autenticación:', error);
           return null;
@@ -45,7 +44,7 @@ const handler = NextAuth({
     }
   },
   pages: {
-    signIn: '/auth/login',  // Redirige a una página personalizada de inicio de sesión
+    signIn: "/login",
   }
 });
 

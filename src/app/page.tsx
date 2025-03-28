@@ -1,11 +1,7 @@
-import { Typography, Box  } from '@mui/material';
-
 export default function Home() {
   return (
-    <Box>
-      <Typography>
-        Go to nextjs.org →
-      </Typography>
-    </Box>
+    <div suppressHydrationWarning>
+      Go to nextjs.org →
+    </div>
   );
 }

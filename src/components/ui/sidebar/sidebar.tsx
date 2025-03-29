@@ -1,6 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { signOut } from "next-auth/react";
+
 import { styled, useTheme, Theme } from '@mui/material/styles';
 import MuiDrawer from '@mui/material/Drawer';
 import {
@@ -10,14 +12,20 @@ import {
   IconButton,
 } from '@mui/material';
 
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
+import {
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
+  MoveToInbox as InboxIcon,
+  Mail as MailIcon,
+  Person as PersonIcon,
+  Logout as LogOutIcon,
+} from '@mui/icons-material';
+
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 import CustomAppBar from './custom-app-bar';
 import ListOptions from './list-options';
+import CustomMain from '@/components/CustomMain';
 
 const drawerWidth = 240;
 
@@ -78,23 +86,32 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 const menuOptions = {
   firstSection: [
-    { option: 'Inbox', icon: <InboxIcon /> },
-    { option: 'Starred', icon: <MailIcon />},
-    { option: 'Send email', icon: <InboxIcon /> },
-    { option: 'Send email', icon: <MailIcon /> },
-    { option: 'Drafts', icon: <MailIcon />}
+    { option: 'Inbox', icon: <InboxIcon /> , button: false },
+    { option: 'Starred', icon: <MailIcon />, button: false },
+    { option: 'Send email', icon: <InboxIcon /> , button: false },
+    { option: 'Send email', icon: <MailIcon /> , button: false },
+    { option: 'Drafts', icon: <MailIcon />, button: false}
   ],
   secondSection: [
-    { option: 'All mail', icon: <InboxIcon /> },
-    { option: 'Trash', icon: <MailIcon />},
-    { option: 'Spam', icon: <InboxIcon /> }
+    { option: 'All mail', icon: <InboxIcon /> , button: false },
+    { option: 'Trash', icon: <MailIcon />, button: false },
+    { option: 'Spam', icon: <InboxIcon />, button: false }
+  ],
+  profileSection: [
+    { option: 'Mi Perfil', icon: <PersonIcon /> , button: false },
+    { option: 'Cerrar Sesión', icon: <LogOutIcon />, button: true, function: signOut },
   ]
 }
 
-export default function MiniDrawer() {
+export default function MiniDrawer({ children }: Readonly<{ children: React.ReactNode}>) {
   const theme = useTheme();
   const isMobile = useMediaQuery<Theme>(theme.breakpoints.down('sm'));
   const [open, setOpen] = useState<boolean>(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     if (isMobile) {
@@ -111,6 +128,11 @@ export default function MiniDrawer() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
+  if (!isClient) {
+    // Evita el renderizado mientras no se haya hidratado completamente
+    return null;
+  }
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -136,37 +158,11 @@ export default function MiniDrawer() {
         <ListOptions open={open} options={menuOptions.firstSection} />
         <Divider />
         <ListOptions open={open} options={menuOptions.secondSection} />
+        <Box sx={{ flexGrow: 1 }} />
+        <Divider />
+        <ListOptions open={open} options={menuOptions.profileSection} />
       </Drawer>
-      {/*       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <DrawerHeader />
-        <Typography sx={{ marginBottom: 2 }}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-          tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus non
-          enim praesent elementum facilisis leo vel. Risus at ultrices mi tempus
-          imperdiet. Semper risus in hendrerit gravida rutrum quisque non tellus.
-          Convallis convallis tellus id interdum velit laoreet id donec ultrices.
-          Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-          adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra
-          nibh cras. Metus vulputate eu scelerisque felis imperdiet proin fermentum
-          leo. Mauris commodo quis imperdiet massa tincidunt. Cras tincidunt lobortis
-          feugiat vivamus at augue. At augue eget arcu dictum varius duis at
-          consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa
-          sapien faucibus et molestie ac.
-        </Typography>
-        <Typography sx={{ marginBottom: 2 }}>
-          Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper
-          eget nulla facilisi etiam dignissim diam. Pulvinar elementum integer enim
-          neque volutpat ac tincidunt. Ornare suspendisse sed nisi lacus sed viverra
-          tellus. Purus sit amet volutpat consequat mauris. Elementum eu facilisis
-          sed odio morbi. Euismod lacinia at quis risus sed vulputate odio. Morbi
-          tincidunt ornare massa eget egestas purus viverra accumsan in. In hendrerit
-          gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem
-          et tortor. Habitant morbi tristique senectus et. Adipiscing elit duis
-          tristique sollicitudin nibh sit. Ornare aenean euismod elementum nisi quis
-          eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
-          posuere sollicitudin aliquam ultrices sagittis orci a.
-        </Typography>
-      </Box> */}
+      <CustomMain>{children}</CustomMain>
     </Box>
   );
 }
